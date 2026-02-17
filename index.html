@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ouzbek Global - RAPPORT D'ARCHITECTURE ET DE SÉCURISATION - SRV-SQL</title>
+    <style>
+        /* [Mêmes styles que précédemment] */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f5f7fa;
+            color: #1e293b;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .report-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0,20,40,0.2);
+            overflow: hidden;
+        }
+
+        .report-header {
+            background: #0a2c3d;
+            color: white;
+            padding: 2.5rem 3rem;
+        }
+
+        .report-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+        }
+
+        .report-header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+
+        .meta-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.7;
+        }
+
+        .meta-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .report-content {
+            padding: 2.5rem 3rem;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #0a2c3d;
+            margin: 2.2rem 0 1rem 0;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid #e0e7ef;
+        }
+
+        h2:first-of-type {
+            margin-top: 0;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e4a6d;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .section-intro {
+            background: linear-gradient(to right, #f8fafc, #ffffff);
+            border-left: 6px solid #0a2c3d;
+            padding: 1.2rem 1.8rem;
+            margin-bottom: 1.8rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1e293b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border-radius: 0 12px 12px 0;
+        }
+
+        .section-intro strong {
+            color: #0a2c3d;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: #f0f4f8;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            color: #1e293b;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0a2c3d;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #475569;
+            text-transform: uppercase;
+        }
+
+        .image-container {
+            margin: 2rem 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .image-caption {
+            background: #f9fafc;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.9rem;
+            color: #475569;
+            font-weight: 500;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .image-caption span {
+            font-family: 'SF Mono', monospace;
+            background: #edf2f7;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #2d4b6e;
+            margin-left: 0.5rem;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px dashed #bac8d9;
+            margin: 2.5rem 0;
+        }
+
+        pre {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            border: 1px solid #d1d9e6;
+            white-space: pre-wrap;
+            font-family: 'SF Mono', monospace;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .justification-box {
+            background: #f4f9ff;
+            border-left: 4px solid #1e4a6d;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .signature-block {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .signature-line {
+            width: 250px;
+            border-bottom: 2px solid #0a2c3d;
+            margin: 0.5rem 0;
+        }
+
+        @media (max-width: 650px) {
+            .report-header, .report-content { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- Header -->
+        <div class="report-header">
+            <h1>RAPPORT D'ARCHITECTURE ET DE SÉCURISATION</h1>
+            <div class="subtitle">Plateforme de Base de Données Centralisée (MariaDB)</div>
+            <div class="meta-grid">
+                <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">13 Février 2026</span></div>
+                <div class="meta-item"><span class="meta-label">Rédacteur</span><span class="meta-value">Sugira Yannick</span></div>
+                <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">1.0 - Synthèse Direction</span></div>
+                <div class="meta-item"><span class="meta-label">Domaine</span><span class="meta-value">ouzbek.global</span></div>
+                <div class="meta-item"><span class="meta-label">Serveur principal</span><span class="meta-value">172.16.11.5 (LAN)</span></div>
+                <div class="meta-item"><span class="meta-label">Services hébergés</span><span class="meta-value">Messagerie, Nextcloud, ITSM</span></div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="report-content">
+            <!-- 1. CONTEXTE ET OBJECTIFS -->
+            <h2>1. CONTEXTE ET OBJECTIFS</h2>
+            <div class="section-intro">
+                <strong>🗄️ Le coffre-fort numérique de l'entreprise.</strong> La base de données centralisée est le cœur du système d'information. Elle regroupe les données critiques de la messagerie, de la plateforme collaborative et de la gestion des services IT, garantissant leur cohérence et leur sécurité.
+            </div>
+
+            <p>Dans le cadre de la refonte complète de son système d'information, l'entreprise Ouzbek Global (activité e-commerce) doit se doter d'une <strong>plateforme de base de données centralisée, sécurisée et performante</strong> pour héberger les données de ses applications métier (messagerie, Nextcloud, ITSM).</p>
+
+            <h3>Objectifs poursuivis :</h3>
+            <table>
+                <tr><th>Objectif</th><th>Bénéfice attendu</th></tr>
+                <tr><td><strong>Centraliser les données applicatives</strong></td><td>Cohérence, administration unique, mutualisation des ressources</td></tr>
+                <tr><td><strong>Isoler les données en LAN</strong></td><td>Aucune exposition directe à Internet, réduction de la surface d'attaque</td></tr>
+                <tr><td><strong>Sécuriser les accès</strong></td><td>Tunnels SSH depuis la DMZ, comptes applicatifs dédiés</td></tr>
+                <tr><td><strong>Garantir la traçabilité</strong></td><td>Journalisation des connexions</td></tr>
+                <tr><td><strong>Assurer la conformité</strong></td><td>Répondre aux exigences ANSSI et RGPD</td></tr>
+            </table>
+
+            <hr>
+
+            <!-- 2. PÉRIMÈTRE ET PRINCIPES DE SÉCURITÉ -->
+            <h2>2. PÉRIMÈTRE ET PRINCIPES DE SÉCURITÉ</h2>
+            <div class="section-intro">
+                <strong>🛡️ Un sanctuaire de données.</strong> Le serveur SQL est protégé par une enceinte numérique stricte : isolé en LAN, accessible uniquement par des tunnels SSH, et administré via l'Active Directory. Aucun compromis sur la sécurité des données.
+            </div>
+
+            <p>Le périmètre couvert par ce déploiement inclut :</p>
+            <ul>
+                <li><strong>Le serveur de base de données</strong> : MariaDB</li>
+                <li><strong>Les bases de données applicatives</strong> : mailserver, nextcloud, glpi, roundcubemail</li>
+                <li><strong>Les utilisateurs applicatifs</strong> : mailuser, nextcloud, glpi, roundcube</li>
+                <li><strong>L'intégration à l'Active Directory</strong> pour l'administration</li>
+            </ul>
+
+            <h3>Principes de sécurité appliqués :</h3>
+            <table>
+                <tr><th>Principe</th><th>Implémentation</th></tr>
+                <tr><td><strong>Isolation réseau</strong></td><td>Serveur en LAN, aucun accès direct depuis Internet</td></tr>
+                <tr><td><strong>Moindre privilège</strong></td><td>Comptes applicatifs dédiés avec droits limités à leur propre base</td></tr>
+                <tr><td><strong>Chiffrement</strong></td><td>Communications via tunnels SSH depuis la DMZ</td></tr>
+                <tr><td><strong>Authentification forte</strong></td><td>Intégration AD pour les administrateurs, mots de passe hachés (SHA-512)</td></tr>
+                <tr><td><strong>Traçabilité</strong></td><td>Journalisation des connexions</td></tr>
+                <tr><td><strong>Sauvegarde</strong></td><td>Dumps quotidiens automatisés avec rétention 30 jours</td></tr>
+            </table>
+
+            <hr>
+
+            <!-- 3. ARCHITECTURE GLOBALE ET JUSTIFICATIONS -->
+            <h2>3. ARCHITECTURE GLOBALE ET JUSTIFICATIONS</h2>
+
+            <h3>3.1. Choix de l'isolation en LAN</h3>
+            <div class="section-intro">
+                <strong>🏗️ L'invisibilité comme première protection.</strong> Placer la base de données en LAN, sans aucune exposition directe à Internet, est la mesure de sécurité la plus efficace. Elle rend les données littéralement invisibles aux yeux des attaquants extérieurs.
+            </div>
+
+            <p>Le serveur SQL est positionné en <strong>zone LAN</strong>, inaccessible depuis Internet.</p>
+
+            <pre>INTERNET → Pare-feu → DMZ → [Tunnels SSH] → LAN (SRV-SQL: 172.16.11.5)</pre>
+
+            <div class="justification-box">
+                <p><strong>Justification :</strong></p>
+                <ul>
+                    <li>✅ <strong>Réduction de la surface d'attaque</strong> : aucun port SQL exposé publiquement.</li>
+                    <li>✅ <strong>Protection des données sensibles</strong> : comptes utilisateurs, informations clients.</li>
+                    <li>✅ <strong>Conformité ANSSI</strong> : séparation stricte des zones.</li>
+                </ul>
+                <p><strong>Alternatives envisagées :</strong></p>
+                <ul>
+                    <li><em>Serveur SQL en DMZ</em> : rejeté car trop risqué (exposition directe).</li>
+                </ul>
+            </div>
+
+            <div class="image-container">
+                <img src="Images/ARCHITECTURE_RESEAU_SIMPLIFIE.png" alt="Architecture SQL">
+                <div class="image-caption">
+                    Schéma 1 – Isolation du serveur SQL en LAN <span>ARCHITECTURE_RÉSEAU_SIMPLIFIÉE.png</span>
+                </div>
+            </div>
+
+            <h3>3.2. Choix de MariaDB</h3>
+            <div class="section-intro">
+                <strong>⚡ La puissance open source au service de l'entreprise.</strong> MariaDB allie les performances d'un SGBD de classe mondiale à la flexibilité et à l'absence de coûts de licence, le tout soutenu par une communauté dynamique.
+            </div>
+
+            <div class="justification-box">
+                <p><strong>Justification :</strong></p>
+                <ul>
+                    <li>✅ <strong>Performance</strong> : optimisé pour les charges de travail mixtes (OLTP).</li>
+                    <li>✅ <strong>Fiabilité</strong> : éprouvé dans des environnements de production exigeants.</li>
+                    <li>✅ <strong>Open source</strong> : pas de coûts de licence, communauté active.</li>
+                    <li>✅ <strong>Fonctionnalités</strong> : moteur InnoDB performant, support des transactions ACID.</li>
+                </ul>
+                <p><strong>Alternatives envisagées :</strong></p>
+                <ul>
+                    <li><em>PostgreSQL</em> : rejeté pour une complexité de configuration jugée plus élevée pour ce projet.</li>
+                    <li><em>MySQL Oracle</em> : rejeté en raison des risques de licence.</li>
+                </ul>
+            </div>
+
+            <div class="image-container">
+                <img src="Images/sql_01_root_login.png" alt="Connexion root">
+                <div class="image-caption">
+                    Figure 1 – Connexion root à MariaDB <span>sql_01_root_login.png</span>
+                </div>
+            </div>
+
+            <div class="image-container">
+                <img src="Images/sql_01_bases_donnees.png" alt="Bases de données">
+                <div class="image-caption">
+                    Figure 2 – Bases de données hébergées <span>sql_01_bases_donnees.png</span>
+                </div>
+            </div>
+
+            <h3>3.3. Gestion des comptes applicatifs (moindre privilège)</h3>
+            <div class="section-intro">
+                <strong>🔑 Le principe du moindre privilège : chaque application n'a accès qu'à ce dont elle a besoin.</strong> Cette approche limite drastiquement l'impact d'une éventuelle compromission.
+            </div>
+
+            <p>Chaque application dispose d'un compte dédié avec des droits strictement nécessaires.</p>
+
+            <div class="justification-box">
+                <p><strong>Justification :</strong></p>
+                <ul>
+                    <li>✅ <strong>Sécurité</strong> : une application compromise ne peut pas accéder aux données des autres.</li>
+                    <li>✅ <strong>Traçabilité</strong> : les actions sont attribuables à une application spécifique.</li>
+                </ul>
+            </div>
+
+            <div class="image-container">
+                <img src="Images/sql_02_utilisateur_mailuser.png" alt="Utilisateur mailuser">
+                <div class="image-caption">
+                    Figure 3 – Utilisateur mailuser et ses privilèges <span>sql_02_utilisateur_mailuser.png</span>
+                </div>
+            </div>
+
+            <div class="image-container">
+                <img src="Images/sql_03_table_virtual_users.png" alt="Table virtual_users">
+                <div class="image-caption">
+                    Figure 4 – Contenu de la table virtual_users (messagerie) <span>sql_03_table_virtual_users.png</span>
+                </div>
+            </div>
+
+            <div class="image-container">
+                <img src="Images/sql_03_credentials.png" alt="Fichier credentials">
+                <div class="image-caption">
+                    Figure 5 – Fichier d'identifiants généré <span>sql_03_credentials.png</span>
+                </div>
+            </div>
+
+            <h3>3.4. Intégration à l'Active Directory</h3>
+            <div class="section-intro">
+                <strong>🏢 Une administration unifiée et sécurisée.</strong> L'intégration à l'Active Directory permet de gérer les accès des administrateurs avec les mêmes politiques que le reste de l'infrastructure, simplifiant la gestion et renforçant la sécurité.
+            </div>
+
+            <div class="justification-box">
+                <p><strong>Justification :</strong></p>
+                <ul>
+                    <li>✅ <strong>Centralisation</strong> : gestion unifiée des comptes administrateurs.</li>
+                    <li>✅ <strong>Sécurité</strong> : bénéfice des GPO pour le durcissement.</li>
+                    <li>✅ <strong>Authentification Kerberos</strong> possible.</li>
+                </ul>
+                <p><strong>Alternatives envisagées :</strong></p>
+                <ul>
+                    <li><em>Comptes locaux uniquement</em> : rejeté pour complexité d'administration.</li>
+                </ul>
+            </div>
+
+            <div class="image-container">
+                <img src="Images/sql_05_ad_integration.png" alt="Intégration AD">
+                <div class="image-caption">
+                    Figure 6 – Intégration au domaine ouzbek.global <span>sql_05_ad_integration.png</span>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- 4. SÉCURITÉ AVANCÉE ET DURCISSEMENT -->
+            <h2>4. SÉCURITÉ AVANCÉE ET DURCISSEMENT</h2>
+
+            <h3>4.1. Pare-feu nftables</h3>
+            <div class="section-intro">
+                <strong>🔥 Un périmètre infranchissable.</strong> Les règles nftables sont configurées en "tout bloquer, puis autoriser" : seuls les flux strictement nécessaires (SSH depuis le SRV, MySQL depuis SRV-MAIL) sont permis.
+            </div>
+
+            <p>Règles restrictives : seul le port SSH est ouvert depuis le LAN d'administration.</p>
+
+            <div class="image-container">
+                <img src="Images/sql_01_nftable_rules.png" alt="Règles nftables SQL">
+                <div class="image-caption">
+                    Figure 7 – Règles nftables sur SRV-SQL <span>sql_nftables_rules.png</span>
+                </div>
+            </div>
+
+            <h3>4.2. Hachage des mots de passe</h3>
+            <div class="section-intro">
+                <strong>🔐 Une protection irréversible des mots de passe.</strong> L'utilisation de SHA-512 avec sel garantit que même en cas de fuite de données, les mots de passe restent inexploitables.
+            </div>
+
+            <p>Les mots de passe sont stockés avec l'algorithme SHA-512 (sel).</p>
+
+            <div class="justification-box">
+                <p><strong>Justification :</strong></p>
+                <ul>
+                    <li>✅ Conforme aux recommandations de l'ANSSI.</li>
+                </ul>
+            </div>
+
+            <h3>4.3. Audit Lynis</h3>
+            <div class="section-intro">
+                <strong>📊 Une transparence totale sur notre niveau de sécurité.</strong> L'audit Lynis confirme un score de 96/100, attestant de l'efficacité de nos mesures de durcissement et de notre conformité.
+            </div>
+
+            <div class="image-container">
+                <img src="Images/sql_08_lynis_audit.png" alt="Audit Lynis SQL">
+                <div class="image-caption">
+                    Figure 8 – Audit de sécurité Lynis (score 96/100) <span>sql_08_lynis_audit.png</span>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- 5. TESTS DE VALIDATION -->
+            <h2>5. TESTS DE VALIDATION</h2>
+            <div class="section-intro">
+                <strong>✅ La preuve par les faits.</strong> Chaque fonctionnalité a été testée et validée, de la connexion root à l'intégration AD, en passant par les privilèges applicatifs.
+            </div>
+
+            <table>
+                <tr><th>Test</th><th>Méthode</th><th>Résultat</th></tr>
+                <tr><td>Connexion root</td><td><code>mysql -u root -p</code></td><td>✅ Réussie</td></tr>
+                <tr><td>Connexion mailuser</td><td><code>mysql -u mailuser -p...</code></td><td>✅ Réussie (avec le bon mot de passe)</td></tr>
+                <tr><td>Bases présentes</td><td><code>SHOW DATABASES;</code></td><td>✅ mailserver, nextcloud, glpi</td></tr>
+                <tr><td>Intégration AD</td><td><code>realm list</code></td><td>✅ Domaine ouzbek.global</td></tr>
+                <tr><td>Pare-feu</td><td>Vérification des règles</td><td>✅ SSH uniquement depuis SRV</td></tr>
+            </table>
+
+            <hr>
+
+            <!-- 6. CONCLUSION ET PROCHAINES ÉTAPES -->
+            <h2>6. CONCLUSION ET PROCHAINES ÉTAPES</h2>
+            <div class="section-intro">
+                <strong>🎯 Une base de données solide pour soutenir la croissance.</strong> La plateforme est opérationnelle, sécurisée et parfaitement intégrée. Les prochaines étapes visent à renforcer sa résilience et à automatiser sa maintenance.
+            </div>
+
+            <h3>6.1. Bilan</h3>
+            <p>Le serveur de base de données centralisé apporte à Ouzbek Global :</p>
+            <ul>
+                <li>✅ <strong>Centralisation</strong> des données critiques.</li>
+                <li>✅ <strong>Isolation réseau</strong> conforme ANSSI.</li>
+                <li>✅ <strong>Sécurité renforcée</strong> par comptes dédiés et mots de passe hachés.</li>
+                <li>✅ <strong>Intégration AD</strong> pour l'administration.</li>
+            </ul>
+
+            <h3>6.2. Prochaines étapes (calendrier prévisionnel)</h3>
+
+            <table>
+                <tr><th>Étape</th><th>Échéance</th><th>Objectif</th></tr>
+                <tr><td>Mise en place d'un cluster (Galera)</td><td>T2 2026</td><td>Haute disponibilité</td></tr>
+                <tr><td>Chiffrement au repos</td><td>T2 2026</td><td>Données chiffrées sur disque</td></tr>
+                <tr><td>Audit des comptes</td><td>Trimestriel</td><td>Revue des droits applicatifs</td></tr>
+                <tr><td>Tests de restauration</td><td>Mensuel</td><td>Validation des sauvegardes</td></tr>
+            </table>
+
+            <hr>
+
+            <!-- Signature -->
+            <div class="signature-block">
+                <div>
+                    <div><strong>Rapport validé le :</strong> 13 Février 2026</div>
+                    <div><strong>Par : Sugira Yannick,</strong> Administrateur Système & Réseau</div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="signature-line"></div>
+                    <div style="font-size:0.9rem; color:#475569;">Approbation Direction</div>
+                </div>
+            </div>
+
+            <div style="margin-top:2rem; font-size:0.8rem; color:#7f8c8d; text-align:center; border-top:1px solid #d1d9e6; padding-top:1rem;">
+                Document confidentiel - Ouzbek Global - Plateforme Base de Données
+            </div>
+        </div>
+    </div>
+</body>
+</html>
